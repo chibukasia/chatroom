@@ -2,12 +2,27 @@ import { Image } from "expo-image";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import Input from "@/components/inputs/input";
 import { useForm } from "react-hook-form";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { useState } from "react";
+import { z } from "zod";
+import { signInSchema } from "./auth-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+type SignInData = z.infer<typeof signInSchema>;
 export default function SignInScreen() {
   const [secret, setSecret] = useState(true);
-  const { control } = useForm();
+  const theme = useTheme();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInData>({
+    resolver: zodResolver(signInSchema),
+  });
+
+  const onSubmit = (data: SignInData) => {
+    console.log(data);
+  };
   return (
     <ScrollView
       style={{ padding: 20 }}
@@ -28,10 +43,16 @@ export default function SignInScreen() {
         </Text>
 
         <View style={{ gap: 10, paddingTop: 10 }}>
-          <Input name="email" label="Email" control={control} />
+          <Input
+            name="email"
+            label="Email"
+            control={control}
+            error={errors.email?.message}
+          />
           <Input
             name="password"
             label="Passowrd"
+            error={errors.password?.message}
             secret={secret}
             control={control}
             right={
@@ -45,9 +66,20 @@ export default function SignInScreen() {
         <Button
           mode="contained"
           style={{ marginHorizontal: 40, marginVertical: 20 }}
+          onPress={handleSubmit(onSubmit)}
         >
           Sign In
         </Button>
+        <Text style={{ textAlign: "center" }}>
+          Don&apos;t Have an Account?{" "}
+          <Text
+            style={{ color: theme.colors.primary, fontWeight: "700" }}
+            onPress={() => console.log("Sign In")}
+          >
+            Sign Up
+          </Text>
+        </Text>
+
         <Text style={{ textAlign: "center", paddingBottom: 10 }}>Or</Text>
         <TouchableOpacity
           style={{
