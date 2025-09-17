@@ -4,7 +4,8 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { PaperProvider } from "react-native-paper";
 import { useAuthStore } from "@/store/authstore";
-import Toast from "react-native-toast-message"
+import Toast from "react-native-toast-message";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -19,18 +20,23 @@ export default function RootLayout() {
 
   return (
     <PaperProvider>
-      <Stack screenOptions={{headerShown:false}}>
-        <Stack.Protected guard={authState.isSignedIn}>
-          <Stack.Screen name="(protected)/(tabs)" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Protected guard={!authState.isSignedIn}>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        </Stack.Protected>
-        
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-      <Toast />
+      <KeyboardProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={authState.isSignedIn}>
+            <Stack.Screen
+              name="(protected)/(tabs)"
+              options={{ headerShown: false }}
+            />
+          </Stack.Protected>
+          <Stack.Protected guard={!authState.isSignedIn}>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack.Protected>
+
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+        <Toast />
+      </KeyboardProvider>
     </PaperProvider>
   );
 }

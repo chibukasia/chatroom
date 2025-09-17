@@ -14,6 +14,7 @@ import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message"
 import{capitalize} from "lodash"
 
+
 type SignInData = z.infer<typeof signInSchema>;
 export default function SignInScreen() {
   const [secret, setSecret] = useState(true);
@@ -21,6 +22,7 @@ export default function SignInScreen() {
   const theme = useTheme();
   const {replace} = useRouter()
   const {login} = useAuthStore.getState()
+
   const {
     control,
     handleSubmit,
@@ -47,7 +49,9 @@ export default function SignInScreen() {
       })
     }).finally(()=> setLoading(false));
   };
+
   return (
+    
     <ScrollView
       style={{ padding: 20 }}
       contentContainerStyle={{ flex: 1, justifyContent: "center" }}
