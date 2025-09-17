@@ -1,9 +1,7 @@
-import SignUpScreen from "@/screens/auth/signup";
-import SignInScreen from "@/screens/auth/signin";
+import HomeScreen from "@/screens/home/Home";
 
-export default function HomeScreen() {
+export default function Home() {
   return (
-    <SignUpScreen />
-    // <SignInScreen />
+    <HomeScreen />
   );
 }

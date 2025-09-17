@@ -1,6 +1,6 @@
 import { Text, TextInput } from "react-native-paper";
 import { Control, Controller } from "react-hook-form";
-import { View } from "react-native";
+import { KeyboardType, View } from "react-native";
 import { ReactNode } from "react";
 
 interface InputProps {
@@ -12,6 +12,7 @@ interface InputProps {
   secret?: boolean;
   disabled?: boolean;
   right?: ReactNode
+  keyboardType?: KeyboardType
 }
 const Input = ({
   name,
@@ -21,7 +22,8 @@ const Input = ({
   error,
   secret,
   disabled = false,
-  right
+  right,
+  keyboardType
 }: InputProps) => {
   return (
     <View>
@@ -35,6 +37,7 @@ const Input = ({
             secureTextEntry={secret}
             value={value}
             mode="outlined"
+            keyboardType={keyboardType}
             outlineStyle={{borderRadius: 16}}
             // style={{padding: 0, margin: 0}}
             dense

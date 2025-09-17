@@ -7,22 +7,68 @@ import { useState } from "react";
 import { z } from "zod";
 import { signupSchema } from "./auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "@/firebase/config";
+import { useAuthStore } from "@/store/authstore";
+import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
+import { capitalize } from "lodash";
 
 type UserData = z.infer<typeof signupSchema>;
 
 export default function SignUpScreen() {
   const [secret, setSecret] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
+  const {replace} = useRouter()
+  const {login} = useAuthStore.getState()
   const {
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<UserData>({
     resolver: zodResolver(signupSchema),
   });
 
   const onSubmit = (data: UserData) => {
-    console.log(data);
+    if (data.confirmPassword !== data.password) {
+      setError("confirmPassword", {
+        type: "pattern",
+        message: "Passwords does not match",
+      });
+
+      return;
+    }
+    const { confirmPassword, ...newData } = data;
+    setLoading(true)
+    createUserWithEmailAndPassword(auth, newData.email, newData.password).then(
+      (userCredentials) => {
+        console.log(userCredentials);
+        if (auth.currentUser) {
+          updateProfile(auth.currentUser, {
+            displayName: `${data.firstName} ${data.lastName} ${data.username}`
+          }).then((data) => {
+            console.log('Profile data:::', data)
+            Toast.show({
+              type: "success",
+              text1: "Sign Up Success"
+            })
+          }).catch((error) => console.log(error))
+        }
+        login()
+        replace('/')
+      }
+    ).catch((error)=> {
+      // const errorCode = error.code;
+      const errorMessage = error.message;
+      Toast.show({
+        type: "success",
+        text1: capitalize(error.code.split('/')[1].split('-').join(' '))
+      })
+      setError("root.serverError", {type: error.code, message: error.message})
+      console.log(errorMessage)
+    }).finally(() => setLoading(false));
   };
   return (
     <ScrollView
@@ -71,6 +117,7 @@ export default function SignUpScreen() {
           <Input
             name="email"
             label="Email"
+            keyboardType="email-address"
             control={control}
             error={errors.email?.message}
           />
@@ -111,6 +158,7 @@ export default function SignUpScreen() {
           mode="contained"
           style={{ marginHorizontal: 40, marginVertical: 20 }}
           onPress={handleSubmit(onSubmit)}
+          loading={loading}
         >
           Sign Up
         </Button>
@@ -118,7 +166,7 @@ export default function SignUpScreen() {
           Already Have an Account?{" "}
           <Text
             style={{ color: theme.colors.primary, fontWeight: "700" }}
-            onPress={() => console.log("Sign In")}
+            onPress={() => replace("/(auth)")}
           >
             Sign In
           </Text>

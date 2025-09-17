@@ -7,11 +7,20 @@ import { useState } from "react";
 import { z } from "zod";
 import { signInSchema } from "./auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase/config";
+import { useAuthStore } from "@/store/authstore";
+import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message"
+import{capitalize} from "lodash"
 
 type SignInData = z.infer<typeof signInSchema>;
 export default function SignInScreen() {
   const [secret, setSecret] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false)
   const theme = useTheme();
+  const {replace} = useRouter()
+  const {login} = useAuthStore.getState()
   const {
     control,
     handleSubmit,
@@ -21,7 +30,22 @@ export default function SignInScreen() {
   });
 
   const onSubmit = (data: SignInData) => {
-    console.log(data);
+    setLoading(true)
+    signInWithEmailAndPassword(auth, data.email, data.password).then((userData) => {
+      console.log(userData.user)
+      Toast.show({
+        type: "success",
+        text1: "Signed In success"
+      })
+      login()
+      replace('/')
+    }).catch((error) => {
+      console.log(error)
+      Toast.show({
+        type: "error",
+        text1: capitalize(error.code.split('/')[1].split('-').join(' '))
+      })
+    }).finally(()=> setLoading(false));
   };
   return (
     <ScrollView
@@ -67,6 +91,7 @@ export default function SignInScreen() {
           mode="contained"
           style={{ marginHorizontal: 40, marginVertical: 20 }}
           onPress={handleSubmit(onSubmit)}
+          loading={loading}
         >
           Sign In
         </Button>
@@ -74,7 +99,7 @@ export default function SignInScreen() {
           Don&apos;t Have an Account?{" "}
           <Text
             style={{ color: theme.colors.primary, fontWeight: "700" }}
-            onPress={() => console.log("Sign In")}
+            onPress={() => replace('/(auth)/sign-up')}
           >
             Sign Up
           </Text>
