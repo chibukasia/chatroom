@@ -1,12 +1,12 @@
-import { ScrollView } from "react-native"
-import { Text } from "react-native-paper"
+import ChatList from "@/components/chats/ChatList";
+import { ScrollView } from "react-native";
 
 const HomeScreen = () => {
-    return(
-        <ScrollView>
-            <Text>Home Screen</Text>
-        </ScrollView>
-    )
-}
+  return (
+      <ScrollView>
+        <ChatList />
+      </ScrollView>
+  );
+};
 
-export default HomeScreen
+export default HomeScreen;
